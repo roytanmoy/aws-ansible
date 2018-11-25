@@ -1,11 +1,17 @@
-aws_access_key:  <enter AWS access key>
-aws_secret_key:  <enter AWS secret key> 
-key_name:  <alias name to the AWS private key used to SSH into the instances> 
+######## variables for aws instance creation ###############
+aws_access_key: AKIAJIA2VK2NZR4T2G3A
+aws_secret_key: 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
+key_name: ansible
 aws_region: us-east-2
 vpc_id: vpc-fdc8f095
 #official AMI for Ubuntu 16.04 LTS (HVM) Free Tier
 ami_id: ami-0782e9ee97725263d
 instance_type: t2.micro
-my_local_cidr_ip: <enter local computer cidr_ip e.g., 192.168.1.1/32>
+my_local_cidr_ip: 192.168.0.0/24 
 
+############   Variables for k8s cluster #################
+master_ip: "{{ ansible_facts['ens3']['ipv4']['address'] }}"
+kubeadm_token: decaf2.c61dd19a426515ec
+flannel_subnet: 10.244.0.0/16
+ansible_remote_user: ubuntu  
 

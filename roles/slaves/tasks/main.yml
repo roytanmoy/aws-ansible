@@ -1,0 +1,10 @@
+---
+- name: checking variables
+  debug:
+    var: hostvars['clusterVM1'].join_command
+
+- name: join cluster
+  shell: "{{ hostvars['clusterVM1'].join_command }} >> node_joined.txt"
+  args:
+    chdir: $HOME
+    creates: node_joined.txt
