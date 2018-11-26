@@ -1,1 +1,2 @@
-- import_playbook: playbooks/aws-instance.yml 
+- import_playbook: aws-instance.yml
+- import_playbook: k8s.yml 
