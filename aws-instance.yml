@@ -1,0 +1,93 @@
+---
+- name: Create AWS resources
+  hosts: localhost
+  connection: local
+  gather_facts: False
+
+  vars:
+    instances:
+      - name: clusterVM1
+        group: master
+      - name: clusterVM2
+        group: slave
+      - name: clusterVM3
+        group: slave 
+      
+  tasks:
+  - name: Create security group
+    ec2_group:
+      name: ansible
+      description: Ansible Security Group
+      region: "{{aws_region}}"
+      vpc_id: "{{vpc_id}}"
+      aws_access_key: "{{aws_access_key}}"
+      aws_secret_key: "{{aws_secret_key}}"
+      rules:
+        - proto: tcp
+          from_port: 80
+          to_port: 80
+          cidr_ip: 0.0.0.0/0
+        - proto: tcp
+          from_port: 22
+          to_port: 22
+          cidr_ip: 0.0.0.0/0
+        - proto: all
+          cidr_ip: "{{my_local_cidr_ip}}"
+        - proto: all
+          group_name: ansible
+      rules_egress:
+        - proto: all
+          cidr_ip: 0.0.0.0/0
+    register: firewall
+
+  - name: Create EC2 instance 
+    ec2:
+      aws_access_key: "{{aws_access_key}}"
+      aws_secret_key: "{{aws_secret_key}}"
+      key_name: "{{key_name}}"
+      region: "{{aws_region}}"
+      group_id: "{{firewall.group_id}}"
+      instance_type: "{{instance_type}}"
+      image: "{{ami_id}}"
+      wait: yes
+      volumes:
+        - device_name: /dev/sda1
+          volume_type: gp2
+          volume_size: 100
+          delete_on_termination: true
+      exact_count: 1
+      count_tag:
+         Name: aws-ansible
+      instance_tags:
+         krole: "{{ item.krole }}"
+         Name: "{{ item.krole }}{{ item.index }}"
+         KubernetesCluster: "{{ k8s_cluster_name }}"
+    register: ec2
+    with_items: "{{ k8s_instances }}"
+
+
+  - name: debug ec2 variables
+    debug: 
+      var: ec2.results
+
+
+  - name: Add EC2 instances to inventory group 
+    add_host:
+      name: "{{ item.1.public_ip }}" 
+      groups: "{{ item.1.tags.Name }}"
+    with_subelements: 
+      - "{{ ec2.results }}"
+      - instances
+    when: item.1 | length > 0
+
+
+  - name: Wait for SSH to come up
+    wait_for:
+      host: "{{ item.1.public_ip }}"
+      port: 22
+      delay: 10
+      timeout: 300
+      state: started
+    with_subelements:
+      - "{{ ec2.results }}"    
+      - instances
