@@ -1,0 +1,27 @@
+---
+- name: Initialize ec2 resources
+  hosts: k8sDemo
+  remote_user: ubuntu
+  gather_facts: False
+  become: true
+  pre_tasks:
+    - name: 'update apt pkgs'
+      raw: apt-get -y update
+
+    - name: 'install python2'
+      raw: apt-get -y install python
+
+  tasks:
+  - name: Ensure python-apt is installed
+    command: >
+      apt-get install python-apt -y -q
+      creates=/usr/share/doc/python-apt
+
+  - name: 'apt test'
+    become: true
+    tags: apt
+    command: apt-get update
+    register: hello
+
+  - debug: msg="{{ hello.stdout }}"
+
