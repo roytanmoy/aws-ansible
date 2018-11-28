@@ -2,8 +2,7 @@ project_name: aws_k8s
 env: staging
 
 aws_access_key:  <enter AWS access key>
-aws_secret_key:  <enter AWS secret key> 
-key_name:  <alias name to the AWS private key used to SSH into the instances> 
+aws_secret_key:  <enter AWS secret key>
 aws_region: <e.g., us-east-2>
 vpc_id: <e.g., vpc-chdae2>
 ami_id: <ami id for Ubuntu 16.04 LTS (HVM) Free Tier >
@@ -17,8 +16,6 @@ hostpath: "./Deploy_k8s/hosts"
 
 ####### Cluster Details
 k8s_cluster_name: "kluster1"
-#kubeadm_token: <>   #not required here
-flannel_subnet: <>
 
 ####### IAM Roles
 iam_master_role: "k8s-master-role"
