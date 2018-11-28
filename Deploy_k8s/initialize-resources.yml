@@ -1,12 +1,11 @@
 ---
 - name: Initialize ec2 resources
   hosts: k8sDemo
-  remote_user: ubuntu
+  remote_user: "{{ ansible_remote_user }}"
   gather_facts: False
-  become: true
   pre_tasks:
     - name: 'update apt pkgs'
-      raw: apt-get -y update
+      raw: sudo bash -c "apt-get -y update"
 
     - name: 'install python2'
       raw: apt-get -y install python

@@ -82,7 +82,7 @@
       region: "{{aws_region}}"
       filters:
         instance-state-name: running
-        "tag:krole": master
+        "tag:KubernetesCluster": "{{ k8s_cluster_name }}"
     register: instance_facts
 
   - name: Debug for role
@@ -92,7 +92,7 @@
       - "{{ instance_facts.instances|map(attribute='tags.krole')|list }}"
       - "{{ instance_facts.instances|map(attribute='public_ip_address')|list }}"
  
-  - name: Add instances to respective role groups based on tagging.
+  - name: Add instances to groups based on taged role.
     add_host:
       groups: "{{ item.0 }}"
       hostname: "{{ item.1 }}"
