@@ -1,6 +1,6 @@
 ---
 - name: Create AWS resources
-  hosts: localhost
+  hosts: local
   connection: local
   gather_facts: False
 
@@ -44,7 +44,7 @@
     ec2:
       aws_access_key: "{{aws_access_key}}"
       aws_secret_key: "{{aws_secret_key}}"
-      key_name: "{{key_name}}"
+      key_name: "{{ project_name }}-{{ env }}-key"
       region: "{{aws_region}}"
       group_id: "{{firewall.group_id}}"
       instance_type: "{{instance_type}}"
@@ -65,21 +65,57 @@
     register: ec2
     with_items: "{{ k8s_instances }}"
 
-
-  - name: debug ec2 variables
-    debug: 
-      var: ec2.results
-
-
-  - name: Add EC2 instances to inventory group 
+  - debug:
+      msg: "{{ ec2.results}}"
+ 
+  - name: Add all instances to k8sDemo group 
     add_host:
-      name: "{{ item.1.public_ip }}" 
-      groups: "{{ item.1.tags.Name }}"
+      name: "{{ item.1.public_ip }}"
+      groups: 'k8sDemo'
     with_subelements: 
       - "{{ ec2.results }}"
       - instances
     when: item.1 | length > 0
+ 
+  - name: Find ec2 facts
+    ec2_remote_facts:
+      region: "{{aws_region}}"
+      filters:
+        instance-state-name: running
+        "tag:krole": master
+    register: instance_facts
 
+  - name: Debug for role
+    debug:
+      msg: "Group {{ item.0 }} has IP address: {{ item.1 }}"
+    with_together:
+      - "{{ instance_facts.instances|map(attribute='tags.krole')|list }}"
+      - "{{ instance_facts.instances|map(attribute='public_ip_address')|list }}"
+ 
+  - name: Add instances to respective role groups based on tagging.
+    add_host:
+      groups: "{{ item.0 }}"
+      hostname: "{{ item.1 }}"
+    with_together:
+      - "{{ instance_facts.instances|selectattr('state', 'equalto', 'running')|map(attribute='tags.krole')|list }}"
+      - "{{ instance_facts.instances|selectattr('state', 'equalto', 'running')|map(attribute='public_ip_address')|list }}"
+    
+  - name: Debug list group hosts
+    command: ansible --list-hosts all
+    register: hosts
+  - debug:
+      msg: "{{hosts.stdout_lines}}"
+  
+  - name: Add mapping of hostip and pem key in inventory group file
+    lineinfile: dest={{ hostpath }}
+                regexp={{ item.1.public_ip }} 
+                insertafter="[all:vars]" 
+                line="{{ item.1.public_ip }} {{hoststring}}"
+                state=present
+    with_subelements:
+      - "{{ ec2.results }}"
+      - instances
+    when: item.1 | length > 0
 
   - name: Wait for SSH to come up
     wait_for:

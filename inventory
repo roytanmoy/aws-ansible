@@ -1,12 +1,8 @@
 [local]
 localhost ansible_python_interpreter=/usr/bin/python
+host_key_checking = False
 
-[ec2_instances]
-ec2host1 image="ami-0782e9ee97725263d"  tags="{ 'foo': 'bar', 'name': 'ec2host1' }" group_id='sg-07bb906d'
-ec2host2 image="ami-0782e9ee97725263d"  tags="{ 'foo': 'bar', 'name': 'ec2host2' }" group_id='sg-07bb906d'
-ec2host3 image="ami-0782e9ee97725263d"  tags="{ 'foo': 'bar', 'name': 'ec2host3' }" group_id='sg-07bb906d' 
-
-
-[ec2_instances:vars]
-#ansible_python_interpreter=/usr/local/bin/python
-
+[all:vars]
+ansible_connection=ssh
+ansible_user=ubuntu
+ansible_ssh_pass=ubuntu   
