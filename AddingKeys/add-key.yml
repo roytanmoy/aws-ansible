@@ -1,0 +1,15 @@
+---
+- name: Initialize ec2 resources
+  hosts: local
+  gather_facts: False
+
+  tasks:
+  - name: Create an EC2 key
+    ec2_key:
+      name: "{{ project_name }}-{{ env }}-key"
+      region: "{{ aws_region }}"
+    register: ec2_key
+
+  - name: Save private key
+    copy: content="{{ ec2_key.key.private_key }}" dest="{{ playbook_dir }}/../aws-private.pem" mode=0600
+    when: ec2_key.changed
