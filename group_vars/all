@@ -11,8 +11,6 @@ my_local_cidr_ip: <enter local computer cidr>
 
 inv_file: "/<>/aws-ansible/inventory"
 ansible_remote_user: ubuntu
-hoststring: "ansible_ssh_user=ubuntu ansible_ssh_private_key_file=../aws-private.pem"
-hostpath: "./Deploy_k8s/hosts"
 
 ####### Cluster Details
 k8s_cluster_name: "kluster1"
