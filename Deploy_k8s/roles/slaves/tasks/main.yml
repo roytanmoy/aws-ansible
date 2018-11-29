@@ -1,16 +1,4 @@
 ---
-- name: Check if kubelet.conf exists
-  stat:
-    path: "/etc/kubernetes/kubelet.conf"
-  register: kubelet_conf
-
-- name: Join to cluster if needed
-  include_tasks: join.yml
-  when: not kubelet_conf.stat.exists
-
-- name: Enable and check kubelet service
-  systemd:
-    name: kubelet
-    daemon_reload: yes
-    state: started
-    enabled: yes
+- name: Join to Kubernetes cluster
+  shell: |
+    sudo bash -c "kubeadm join --token {{ kubeadm_token }} --discovery-token-unsafe-skip-ca-verification {{ master_ip }}:6443"
