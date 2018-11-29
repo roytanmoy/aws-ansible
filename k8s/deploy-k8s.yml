@@ -1,5 +1,4 @@
 ---
-# This playbook deploys a simple kubeadm install.
 - name: Bootstrap Tasks
   hosts: k8sDemo
   remote_user: "{{ ansible_remote_user }}"
@@ -25,4 +24,4 @@
   roles:
     - docker
     - kubeadm
-
+    - slaves

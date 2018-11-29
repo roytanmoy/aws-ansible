@@ -3,15 +3,6 @@
   hosts: local
   connection: local
   gather_facts: False
-
-  vars:
-    instances:
-      - name: clusterVM1
-        group: master
-      - name: clusterVM2
-        group: slave
-      - name: clusterVM3
-        group: slave 
       
   tasks:
   - name: Create security group
@@ -64,9 +55,6 @@
          KubernetesCluster: "{{ k8s_cluster_name }}"
     register: ec2
     with_items: "{{ k8s_instances }}"
-
-  - debug:
-      msg: "{{ ec2.results}}"
  
   - name: Add all instances to k8sDemo group 
     add_host:
@@ -99,12 +87,6 @@
     with_together:
       - "{{ instance_facts.instances|selectattr('state', 'equalto', 'running')|map(attribute='tags.krole')|list }}"
       - "{{ instance_facts.instances|selectattr('state', 'equalto', 'running')|map(attribute='public_ip_address')|list }}"
-    
-  - name: Debug list group hosts
-    command: ansible --list-hosts all
-    register: hosts
-  - debug:
-      msg: "{{hosts.stdout_lines}}"
   
   - name: Add mapping of hostip and pem key in inventory group file
     lineinfile: dest={{ hostpath }}

@@ -7,10 +7,12 @@ master
 worker
 
 
+
 [master]
 
 
 [worker]
+
 
 [all:vars]
 ansible_connection=ssh

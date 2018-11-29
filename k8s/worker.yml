@@ -8,21 +8,30 @@
       shell: kubeadm token create --print-join-command
       register: join_command_raw
 
-    - name: "For persistent, add join_command to dummy host to pass to workers"
+    - name: debug join_command_raw
+      debug:
+        msg: "{{ join_command_raw }}"
+ 
+    - name: add join command to a dummy hostvar
       add_host:
-        name: "Join_Command_Holder"
+        name: JOIN_CMD_HOLDER
         join_command: "{{ join_command_raw.stdout_lines[0] }}"
+  
 
 - hosts: worker
   become: yes
   tasks:
+    - name: debug node_join 
+      debug:
+        msg: "{{ hostvars['JOIN_CMD_HOLDER'].join_command }}"
+
     - name: clear node_join file if exists
       file:
         state: absent
         path: $HOME/node_joined.txt
 
     - name: join cluster
-      shell: " {{ hostvars['join_command'] }} >> node_joined.txt"
+      shell: "{{ hostvars['JOIN_CMD_HOLDER'].join_command }} >> node_joined.txt"
       args:
         chdir: $HOME
         creates: node_joined.txt

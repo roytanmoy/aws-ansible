@@ -1,0 +1,22 @@
+---
+
+- hosts: master
+  connection: local
+
+  tasks:
+
+  - name: Launch 3 ngix pods
+    command: "kubectl create pods nginx --image=nginx"
+
+  - name: Expose nginx
+    command: "kubectl expose deployment nginx --port 80 --target-port 80 --type NodePort"
+
+  - name: Get exposed port
+    command: "kubectl get svc nginx --output=jsonpath='{range .spec.ports[0]}{.nodePort}'"
+    register: result
+
+  - set_fact:
+      node_port: "{{ result.stdout }}"
+
+  - debug: msg="Exposed port {{ node_port }}"
+

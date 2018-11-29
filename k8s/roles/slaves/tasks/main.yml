@@ -1,0 +1,11 @@
+---
+- name: clear node_join file if exists
+  file:
+     state: absent
+     path: $HOME/node_joined.txt
+
+- name: join cluster
+  shell: "{{ hostvars['JOIN_CMD_HOLDER'].join_command }} >> node_joined.txt"
+  args:
+    chdir: $HOME
+    creates: node_joined.txt

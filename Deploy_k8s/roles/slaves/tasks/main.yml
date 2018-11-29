@@ -1,4 +1,0 @@
----
-- name: Join to Kubernetes cluster
-  shell: |
-    sudo bash -c "kubeadm join --token {{ kubeadm_token }} --discovery-token-unsafe-skip-ca-verification {{ master_ip }}:6443"

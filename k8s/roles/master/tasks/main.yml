@@ -35,7 +35,8 @@
   shell: kubeadm token create --print-join-command
   register: join_command_raw
 
-- name: set join command
-  set_fact:
+- name: store join command to a dummy hostvar for access from clients
+  add_host:
+    name: JOIN_CMD_HOLDER
     join_command: "{{ join_command_raw.stdout_lines[0] }}"
 
