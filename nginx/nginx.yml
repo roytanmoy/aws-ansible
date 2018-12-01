@@ -1,12 +1,12 @@
 ---
-
 - hosts: master
-  connection: local
+  remote_user: "{{ ansible_remote_user }}"
+  gather_facts: False
 
   tasks:
 
-  - name: Launch 3 ngix pods
-    command: "kubectl create pods nginx --image=nginx"
+  - name: Launch ngix pods
+    command: "kubectl create deployment nginx --image nginx"
 
   - name: Expose nginx
     command: "kubectl expose deployment nginx --port 80 --target-port 80 --type NodePort"
