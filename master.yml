@@ -1,4 +1,5 @@
 - import_playbook: ./AddingKeys/add-key.yml
-- import_playbook: create-instance.yml
-- import_playbook: ./k8s/deploy-k8s.yml
+- import_playbook: ./ec2/create-instance.yml
+- import_playbook: ./k8s/k8s_cluster.yml
 - import_playbook: ./nginx/deploy_nginx.yml
+- import_playbook: ./policies/expose_services.yml
