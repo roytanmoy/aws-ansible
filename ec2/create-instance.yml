@@ -7,7 +7,7 @@
   tasks:
   - name: Create security group
     ec2_group:
-      name: ansible
+      name: sg_http
       description: Ansible Security Group
       region: "{{aws_region}}"
       vpc_id: "{{vpc_id}}"
@@ -15,21 +15,19 @@
       aws_secret_key: "{{aws_secret_key}}"
       rules:
         - proto: tcp
-          from_port: 80
-          to_port: 80
-          cidr_ip: 0.0.0.0/0
-        - proto: tcp
           from_port: 22
           to_port: 22
           cidr_ip: 0.0.0.0/0
+        - proto: tcp
+          from_port: 80
+          to_port: 80
+          cidr_ip: 0.0.0.0/0
         - proto: all
           cidr_ip: "{{my_local_cidr_ip}}"
-        - proto: all
-          group_name: ansible
       rules_egress:
         - proto: all
           cidr_ip: 0.0.0.0/0
-    register: firewall
+    register: sg_http
 
   - name: Create EC2 instance 
     ec2:
@@ -37,7 +35,7 @@
       aws_secret_key: "{{aws_secret_key}}"
       key_name: "{{ project_name }}-{{ env }}-key"
       region: "{{aws_region}}"
-      group_id: "{{firewall.group_id}}"
+      group_id: "{{sg_http.group_id}}"
       instance_type: "{{instance_type}}"
       image: "{{ami_id}}"
       wait: yes
@@ -56,9 +54,9 @@
     register: ec2
     with_items: "{{ k8s_instances }}"
  
-  - name: Add all instances to k8sDemo group 
+  - name: Add all instances to k8sDemo hosts group 
     add_host:
-      name: "{{ item.1.private_ip }}"
+      name: "{{ item.1.public_ip }}"
       groups: 'k8sDemo'
     with_subelements: 
       - "{{ ec2.results }}"
@@ -79,11 +77,11 @@
       hostname: "{{ item.1 }}"
     with_together:
       - "{{ instance_facts.instances|selectattr('state', 'equalto', 'running')|map(attribute='tags.krole')|list }}"
-      - "{{ instance_facts.instances|selectattr('state', 'equalto', 'running')|map(attribute='private_ip_address')|list }}"
+      - "{{ instance_facts.instances|selectattr('state', 'equalto', 'running')|map(attribute='public_ip_address')|list }}"
 
   - name: Wait for SSH to come up
     wait_for:
-      host: "{{ item.1.private_ip }}"
+      host: "{{ item.1.public_ip }}"
       port: 22
       delay: 10
       timeout: 300
