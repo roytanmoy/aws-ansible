@@ -2,21 +2,34 @@
 - hosts: master
   remote_user: "{{ ansible_remote_user }}"
   gather_facts: False
+  vars:
+    fpath: ~/demo-nginx/
 
   tasks:
+  - name: Create directory
+    file:
+      path: "{{ fpath }}"
+      state: directory
 
-  - name: Launch ngix pods
-    command: "kubectl create deployment nginx --image nginx"
+  - name: Upload the files
+    copy:
+      src: "{{ item }}"
+      dest: "{{ fpath }}"
+      mode: 0700
+    with_fileglob:
+      - ./templates/*
 
-  - name: Expose nginx
-    command: "kubectl expose deployment nginx --port 80 --target-port 80 --type NodePort"
+  - name: Create pod deployments and expose services
+    command: "{{ fpath }}deploy.sh"
 
   - name: Get exposed port
     command: "kubectl get svc nginx --output=jsonpath='{range .spec.ports[0]}{.nodePort}'"
     register: result
 
   - set_fact:
-      node_port: "{{ result.stdout }}"
+    node_port: "{{ result.stdout }}"
 
   - debug: msg="Exposed port {{ node_port }}"
+
+
 
