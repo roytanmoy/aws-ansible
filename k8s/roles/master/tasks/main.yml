@@ -28,7 +28,7 @@
     - chmod 0400 ~{{ansible_remote_user }}/.kube/config
 
 - pause:
-    minutes: 3
+    minutes: 2
     prompt: "Make sure network pods are started"
 
 - name: get join command
