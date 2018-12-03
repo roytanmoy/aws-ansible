@@ -12,8 +12,7 @@ This README gives details workflow to deploy a web-server application using ansi
 ● This Web app must show Homer Simpson picture when accessing /homersimpson and the time in the moment of request in Covilha City (Portugal) when accessing /covilha.
 ● Run on a static-IP
 ● Only the port 80 need to be opened
-● Application shall have built-in prometheus exporter and provide two metrics:
-
-  -Total number of requests to /homersimpson uri
-  -Total number of requests to /covilha uri
+● Application shall have built-in prometheus exporter and provide two metrics
+   Total number of requests to /homersimpson uri
+   Total number of requests to /covilha uri
 
