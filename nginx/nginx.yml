@@ -23,11 +23,12 @@
     command: "{{ fpath }}deploy.sh"
 
   - name: Get exposed port
-    command: "kubectl get svc nginx --output=jsonpath='{range .spec.ports[0]}{.nodePort}'"
+    tags: getport
+    command: "kubectl get svc {{k8s_nginx_svc_name}} --output=jsonpath='{range .spec.ports[0]}{.nodePort}'"
     register: result
 
   - set_fact:
-    node_port: "{{ result.stdout }}"
+      node_port: "{{ result.stdout }}"
 
   - debug: msg="Exposed port {{ node_port }}"
 
