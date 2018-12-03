@@ -4,59 +4,29 @@
   gather_facts: False
       
   tasks:
-  - name: modify security group to expose only port 80 to external
-    ec2_group:
-      name: sg_http 
-      description: Security group for HTTP(S) access
-      region: "{{aws_region}}"
-      vpc_id: "{{vpc_id}}"
-      aws_access_key: "{{aws_access_key}}"
-      aws_secret_key: "{{aws_secret_key}}"
-      rules:
-        - proto: tcp
-          from_port: 80
-          to_port: 80
-          cidr_ip: 0.0.0.0/0
-      rules_egress:
-        - proto: all
-          cidr_ip: 0.0.0.0/0
-    register: sg_http
 
-
-  - name: Find ec2 facts
+  - name: Find ec2 remote facts
     ec2_remote_facts:
       region: "{{aws_region}}"
       filters:
         instance-state-name: running
         "tag:KubernetesCluster": "{{ k8s_cluster_name }}"
-        "tag:Name": "master0" 
     register: ec2_info
 
   - set_fact:
-      ec2_instance_id: "{{ item.id }}"
+      ec2_master_id: "{{ item.id }}"
     with_items: "{{ ec2_info.instances }}" 
- 
-  - name: Allocating elastic IP to instance
-    ec2_eip:
-      aws_access_key: "{{aws_access_key}}"
-      aws_secret_key: "{{aws_secret_key}}"
-      in_vpc: yes
-      reuse_existing_ip_allowed: yes
-      state: present
-      region: "{{aws_region}}"
-      instance_id: "{{ ec2_instance_id }}"
-    register: instance_eip
-    when:  ec2_instance_id is defined
-  - debug: var=instance_eip
+    when:
+      - item.tags.Name == "master0"
 
-  - name: Create the ELB only listening over port 80
+  - name: Create the ELB listening over port 80
     ec2_elb_lb:
-    name: demo-load-balancer
+      name: demo-load-balancer
       state: present
       region: "{{ aws_region }}"
       zones:
         - us-east-1a
-        - us-east-1b
+        - us-east-1c
       listeners:
         - protocol: http
           load_balancer_port: 80
@@ -69,4 +39,42 @@
       ec2_elbs: demo-load-balancer
       region: "{{ aws_region }}"
       instance_id: "{{ item.id }}"
-    with_items: "{{ ec2_instances.tagged_instances }}"
+    with_items: "{{ ec2_info.instances }}"
+
+  - name: Allocating elastic IP to instance
+    ec2_eip:
+      aws_access_key: "{{aws_access_key}}"
+      aws_secret_key: "{{aws_secret_key}}"
+      in_vpc: yes
+      reuse_existing_ip_allowed: yes
+      state: present
+      region: "{{aws_region}}"
+      instance_id: "{{ ec2_master_id }}"
+    register: instance_eip
+    when:  ec2_master_id is defined
+
+  - debug: 
+      msg: "allocated elastic ip for master instance {{ instance_eip}}"
+
+  - name: modify security group to expose only port 80 to external
+    tags: last
+    ec2_group:
+      name: sg_http
+      description: Security group for HTTP(S) access
+      region: "{{aws_region}}"
+      vpc_id: "{{vpc_id}}"
+      aws_access_key: "{{aws_access_key}}"
+      aws_secret_key: "{{aws_secret_key}}"
+      rules:
+        - proto: tcp
+          from_port: 80
+          to_port: 80
+          cidr_ip: 0.0.0.0/0
+        - proto: tcp
+          from_port: 22
+          to_port: 22
+          cidr_ip: 0.0.0.0/0
+      rules_egress:
+        - proto: all
+          cidr_ip: 0.0.0.0/0
+    register: sg_http
