@@ -1,9 +1,9 @@
 ---
 - name: kubeadm init with pre generated token
-  command: kubeadm init --pod-network-cidr {{ flannel_subnet }} --token {{ kubeadm_token }} --ignore-preflight-errors Swap
+  command: kubeadm init --pod-network-cidr {{ flannel_subnet }} --token {{ kubeadm_token }} --ignore-preflight-errors NumCPU
 
 - pause:
-    minutes: 3
+    minutes: 1
     prompt: "Make sure admin pods are started"
 
 - name: allow permissive RBAC rules
@@ -28,7 +28,7 @@
     - chmod 0400 ~{{ansible_remote_user }}/.kube/config
 
 - pause:
-    minutes: 2
+    minutes: 1
     prompt: "Make sure network pods are started"
 
 - name: get join command
