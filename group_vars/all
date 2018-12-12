@@ -1,31 +1,26 @@
 project_name: aws_k8s
 env: staging
-
-aws_access_key:  <enter AWS access key>
-aws_secret_key:  <enter AWS secret key>
-aws_region: <e.g., us-east-2>
-vpc_id: <e.g., vpc-chdae2>
-ami_id: <ami id for Ubuntu 16.04 LTS (HVM) Free Tier >
+aws_region: <aws region>
+key_name: aws_ansible
+vpc_id: <vpc-id>
+ami_id: ami-059eeca93cf09eebd
 instance_type: t2.micro
-my_local_cidr_ip: <enter local computer cidr>
+my_local_cidr_ip: <cidr of demo computer>
 
-inv_file: "/<>/aws-ansible/inventory"
+inv_file: <path to inventory>
 ansible_remote_user: ubuntu
 
-####### Cluster Details
-k8s_cluster_name: "kluster1"
+k8s_cluster_name: "k8sDemo"
 
-####### IAM Roles
 iam_master_role: "k8s-master-role"
 iam_master_policy: "k8s-master-policy"
 iam_worker_role: "k8s-worker-role"
 iam_worker_policy: "k8s-worker-policy"
 
-######### Instances
 k8s_instances:
   -
     index: 0
-    krole: "controller"
+    krole: "master"
     public_ip: False
     source_dest_check: True
     iam_role: "{{ iam_master_role }}"
