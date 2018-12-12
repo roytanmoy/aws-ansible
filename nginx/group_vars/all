@@ -2,5 +2,5 @@ ansible_remote_user: ubuntu
 ansible_ssh_private_key_file: ./aws-private.pem
 
 
-k8s_nginx_svc_name: nginx
+k8s_nginx_svc_name: demo-nginx
 
