@@ -1,6 +1,7 @@
 - import_playbook: ./addKeys/addKeys.yml
 - import_playbook: ./ec2/create-instance.yml
 - import_playbook: ./k8s/k8s.yml
+- import_playbook: ./addOns/addOns.yml
 - import_playbook: ./nginx/nginx.yml
-- import_playbook: ./policies/expose_services.yml
+#- import_playbook: ./policies/expose_services.yml
 
