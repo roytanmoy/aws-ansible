@@ -1,0 +1,9 @@
+---
+# Install addons via the master
+- hosts: master
+  remote_user: "{{ ansible_remote_user }}"
+  #any_errors_fatal: true
+  gather_facts: False
+  roles:
+    - helm
+    - ingress_nginx

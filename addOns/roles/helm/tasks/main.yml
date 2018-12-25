@@ -1,0 +1,58 @@
+---
+
+- name: Download helm archive
+  get_url:
+    url: "{{ helm_archive_url }}"
+    dest: ~/helm-{{ helm_version }}.tar.gz
+    #checksum: "{{ helm_archive_checksum }}"
+
+- name: Make unpack directory
+  file:
+    path: ~/helm/{{ helm_version }}
+    state: directory
+
+- name: Unpack helm archive
+  unarchive:
+    src: ~/helm-{{ helm_version }}.tar.gz
+    dest: ~/helm/{{ helm_version }}
+    remote_src: yes
+
+- name: Symlink latest version
+  file:
+    src: ~/helm/{{ helm_version }}
+    dest: ~/helm/latest
+    state: link
+
+- name: Symlink Helm executable to /usr/bin
+  file:
+    src: ~{{ansible_remote_user }}/helm/latest/linux-amd64/helm
+    dest: /usr/bin/helm
+    state: link
+  become: yes
+  become_method: sudo
+
+- name: Create service account for tiller
+  command: kubectl -n kube-system create serviceaccount tiller
+  register: result
+  changed_when: result.rc == 0
+  failed_when: result.rc != 0 and 'AlreadyExists' not in result.stderr
+
+- name: Bind tiller service account to cluster-admin role
+  command: > 
+    kubectl create clusterrolebinding tiller-cluster-admin 
+      --clusterrole=cluster-admin --serviceaccount=kube-system:tiller
+  register: result
+  changed_when: result.rc == 0
+  failed_when: result.rc != 0 and 'AlreadyExists' not in result.stderr
+
+# Add a toleration to the tiller pod spec so it is able to run on the master node
+- name: Install/upgrade tiller
+  command: >
+    helm init
+      --upgrade 
+      --service-account tiller 
+      --override "spec.template.spec.tolerations[0].key"="node-role.kubernetes.io/master" 
+      --override "spec.template.spec.tolerations[0].operator"="Exists" 
+      --override "spec.template.spec.tolerations[0].effect"="NoSchedule"
+- name: Ensure tiller has started
+  shell: kubectl -n kube-system rollout status deployment tiller-deploy
