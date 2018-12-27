@@ -1,0 +1,15 @@
+---
+addons:
+  apps_nginx:
+    name: apps-nginx
+    dirs:
+      - apps-nginx
+    dependencies:
+      - name: demo
+        kind: ns
+        files:
+          - apps-nginx/nginx-ns.yml
+    templates:
+      - apps-nginx/nginx-dp.yml
+      - apps-nginx/nginx-svc.yml
+      - apps-nginx/nginx-ing.yml

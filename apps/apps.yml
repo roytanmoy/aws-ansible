@@ -1,0 +1,11 @@
+---
+# Require the K8s cluster is fully operation and running
+- hosts: master
+  remote_user: "{{ ansible_remote_user }}"
+  become: true
+  gather_facts: false
+  roles:
+  - { role: cluster-default }
+  - { role: apps-addon, tags: apps-nginx, when: enable_apps_nginx,       addon: "{{ addons.apps_nginx }}" }
+  - { role: apps-addon, tags: apps-phnumbers,     when: enable_apps_phnumbers,     addon: "{{ addons.apps_phnumbers }}" }
+

@@ -1,0 +1,8 @@
+ansible_remote_user: ubuntu
+ansible_ssh_private_key_file: ./aws-private.pem
+
+
+# Apps addons
+enable_apps_nginx: true
+enable_apps_phnumbers: false
+
