@@ -15,17 +15,18 @@ cni_iface: ""
 
 # Kubernetes HA extra variables.
 vip_interface: ""
-vip_address: 172.16.35.9
+vip_address: <ELB Address>
 
 # etcd extra variables.
 etcd_iface: ""
 
 # Kubernetes extra addons
 enable_ingress: true
+enable_ingress_L4elb: false
 enable_dashboard: false
 enable_logging: false
 enable_monitoring: false
 enable_metric_server: false
 
 grafana_user: "admin"
-grafana_password: "p@ssw0rd"
+grafana_password: "<password>"
