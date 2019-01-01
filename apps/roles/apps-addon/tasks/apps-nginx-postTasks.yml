@@ -1,0 +1,27 @@
+
+- name: Get exposed port
+  command: |
+    /usr/bin/kubectl --kubeconfig=/etc/kubernetes/admin.conf \
+      get svc {{nginx_svcName}} -n {{nginx_nameSpace}} \
+      --output=jsonpath='{range .spec.ports[0]}{.nodePort}'
+  register: result
+
+- set_fact:
+    node_port: "{{ result.stdout }}"
+
+- name: save variables to hosts file
+  lineinfile:
+    dest: "{{inventory_file}}"
+    regexp: '^(.*)node_port(.*)$'
+    line: "node_port: {{node_port}}"
+    state: present
+  delegate_to: 127.0.0.1
+  sudo: False
+
+- name: store join command to a dummy hostvar for access from clients
+  add_host:
+    name: NODE_PORT_HOLDER
+    node_port: "{{ result.stdout_lines[0] }}"
+
+- debug:
+    msg: "Exposed node port {{ hostvars['NODE_PORT_HOLDER'].node_port }}"

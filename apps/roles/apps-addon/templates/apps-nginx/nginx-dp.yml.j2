@@ -1,20 +1,24 @@
-apiVersion: apps/v1
+apiVersion: apps/v1beta1
 kind: Deployment
 metadata:
   name: demo-nginx
   namespace: demo
+  labels:
+    app: demo-nginx
 spec:
   selector:
     matchLabels:
-      run: demo-nginx
+      app: demo-nginx
   replicas: 1
   template:
     metadata:
       labels:
-        run: demo-nginx
+        app: demo-nginx
     spec:
       containers:
       - name: demo-nginx
         image: k8s.gcr.io/nginx:1.7.9
         ports:
-        - containerPort: 80
+        - name: http
+          containerPort: 80
+          protocol: TCP

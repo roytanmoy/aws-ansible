@@ -9,6 +9,8 @@ addons:
         kind: ns
         files:
           - apps-nginx/nginx-ns.yml
+    postTasks:
+      - apps-nginx-postTasks.yml 
     templates:
       - apps-nginx/nginx-dp.yml
       - apps-nginx/nginx-svc.yml
