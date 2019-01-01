@@ -1,0 +1,7 @@
+#classic loadb balancer
+create_aws_elb: true
+elb_name: demo-load-balancer
+elb_zone1: us-east-1a
+elb_zone2: us-east-1c
+update_security_group: true
+create_elastic_ip: false
