@@ -56,6 +56,21 @@ addons:
       - ingress-nginx/ingress-controller-rbac.yml
       - ingress-nginx/ingress-controller-svc.yml
       - ingress-nginx/ingress-controller-dp.yml
+  ingress_nginx_L4elb:
+    name: ingress-nginx
+    dirs:
+      - ingress-nginx-L4elb
+    dependencies:
+      - name: ingress-nginx
+        kind: ns
+        files:
+          - ingress-nginx-L4elb/ingress-controller-ns.yml
+    templates:
+      - ingress-nginx-L4elb/ingress-controller-sa.yml
+      - ingress-nginx-L4elb/ingress-controller-cm.yml
+      - ingress-nginx-L4elb/ingress-controller-rbac.yml
+      - ingress-nginx-L4elb/ingress-controller-svc.yml
+      - ingress-nginx-L4elb/ingress-controller-dp.yml
   logging:
     name: kube-logging
     dirs:

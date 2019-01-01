@@ -84,5 +84,4 @@ proxy_env:
 #############
 repos_offline: false # download pkg from custom url
 repos_port: 4040
-#repos_offline_url: "http://172.16.35.9:{{ repos_port }}"
 repos_offline_url: "http://172.31.4.183:{{ repos_port }}"
